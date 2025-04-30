@@ -140,6 +140,11 @@ def parse_train(rows: list[CSVRow]) -> tuple[Trip, list[StopTime]]:
         stop_times.append(stop_time)
         previous_dep = dep
 
+    # Ensure arrival and departure times match at first and last stops
+    if stop_times:
+        stop_times[0].arrival_time = stop_times[0].departure_time
+        stop_times[-1].departure_time = stop_times[-1].arrival_time
+
     return trip, stop_times
 
 
