@@ -22,6 +22,7 @@ from .gtfs import GTFS_HEADERS
 from .load_csv import LoadCSV
 from .load_stations import LoadStationData
 from .simplify_routes import SimplifyRoutes
+from .load_transfers import LoadTransfers
 
 
 class PKPIntercityGTFS(App):
@@ -53,6 +54,7 @@ class PKPIntercityGTFS(App):
                     task_name="RemoveBohuminVrbice",
                 ),
                 LoadStationData(),
+                LoadTransfers(),
                 SimplifyRoutes(),
                 GenerateTripHeadsign(),
                 SplitTripLegs(replacement_bus_short_name_pattern=re.compile(r"\bZKA\b", re.I)),
@@ -64,6 +66,10 @@ class PKPIntercityGTFS(App):
                 "kpd_rozklad.csv": ZippedResource(
                     r=FTPResource("rozklad/KPD_Rozklad.zip"),
                     file_name_in_zip="KPD_Rozklad.csv",
+                ),
+                "kpd_rodzklad_przelaczenia.csv": ZippedResource(
+                    r=FTPResource("rozklad/KPD_Rozklad.zip"),
+                    file_name_in_zip="KPD_Rozklad_Przelaczenia.csv",
                 ),
                 "pl_rail_map.osm": HTTPResource.get(
                     "https://raw.githubusercontent.com/MKuranowski/PLRailMap/master/plrailmap.osm"
