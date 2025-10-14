@@ -77,7 +77,7 @@ def train_rows(filename: StrPath) -> Iterator[tuple[TrainKey, Iterator[CSVRow]]]
     #       For the past 5 years that was the case.
     with open(filename, "r", encoding="windows-1250", newline="") as f:
         all_rows = csv.DictReader(f, delimiter=";")
-        pax_rows = filter(lambda r: r["StacjaHandlowa"] == "1", all_rows)
+        pax_rows = all_rows  # filter(lambda r: r["StacjaHandlowa"] == "1", all_rows)
         yield from groupby(pax_rows, itemgetter("DataOdjazdu", "NrPociagu"))
 
 
@@ -127,6 +127,12 @@ def parse_train(rows: list[CSVRow]) -> tuple[Trip, list[StopTime]]:
         else:
             platform = normalize_platform(row["PeronWyjazd"] or row["PeronWjazd"])
 
+        pax_exchnage = (
+            StopTime.PassengerExchange.SCHEDULED_STOP
+            if row["StacjaHandlowa"] == "1"
+            else StopTime.PassengerExchange.NONE
+        )
+
         stop_time = StopTime(
             trip_id=trip_id,
             stop_id=stop_id,
@@ -135,6 +141,8 @@ def parse_train(rows: list[CSVRow]) -> tuple[Trip, list[StopTime]]:
             departure_time=TimePoint(seconds=dep),
             platform=platform,
             extra_fields_json=json.dumps({"fare_dist_m": str(dist)}),
+            drop_off_type = pax_exchnage,
+            pickup_type = pax_exchnage,
         )
 
         stop_times.append(stop_time)
