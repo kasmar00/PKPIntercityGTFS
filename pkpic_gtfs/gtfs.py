@@ -58,4 +58,16 @@ GTFS_HEADERS = {
         "saturday",
         "sunday",
     ),
+    "feed_info.txt": (
+        "feed_publisher_name",
+        "feed_publisher_url",
+        "feed_lang",
+        "feed_version",
+    ),
+    "attributions.txt": (
+        "organization_name",
+        "is_producer",
+        "is_operator",
+        "attribution_url",
+    ),
 }
