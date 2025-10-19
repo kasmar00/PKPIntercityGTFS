@@ -65,7 +65,7 @@ class LoadStationData(impuls.Task):
         with r.db.transaction():
             for station in stations:
                 self._apply(station, r.db)
-        self._ensure_everything_curated(r.db)
+        self._ensure_everything_curated()
 
     def _apply(self, station: Station, db: impuls.DBConnection) -> None:
         if station.id not in self.to_update and station.secondary_id not in self.to_update:
@@ -96,17 +96,12 @@ class LoadStationData(impuls.Task):
             (station.name, station.lat, station.lon, station.id),
         )
 
-    def _ensure_everything_curated(self, db: impuls.DBConnection) -> None:
+    def _ensure_everything_curated(self) -> None:
         if self.to_update:
-            # This will drop stops that are technical waypoints
-            self.logger.warning("Some stops were not found in stops db: %s", self.to_update)
-            with db.transaction():
-                db.raw_execute_many("DELETE FROM stops WHERE stop_id = ?", ((stop_id,) for stop_id in self.to_update))
-                db.raw_execute_many("DELETE FROM stop_times WHERE stop_id = ?", ((stop_id,) for stop_id in self.to_update))
-            # raise impuls.errors.MultipleDataErrors(
-            #     "LoadStationData",
-            #     [
-            #         impuls.errors.DataError(f"Missing data for {id} {name!r}")
-            #         for id, name in self.to_update.items()
-            #     ],
-            # )
+            raise impuls.errors.MultipleDataErrors(
+                "LoadStationData",
+                [
+                    impuls.errors.DataError(f"Missing data for {id} {name!r}")
+                    for id, name in self.to_update.items()
+                ],
+            )
