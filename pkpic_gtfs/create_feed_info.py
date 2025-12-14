@@ -14,7 +14,7 @@ class CreateFeedInfo(Task):
         super().__init__()
 
     def execute(self, r: TaskRuntime) -> None:
-        source_timestamp = r.resources["kpd_rozklad.csv"].last_modified.astimezone(POLAND_TZ)
+        source_timestamp = r.resources["kpd_rozklad.zip"].last_modified.astimezone(POLAND_TZ)
         r.db.create(
             FeedInfo(
                 publisher_name="Mikołaj Kuranowski",

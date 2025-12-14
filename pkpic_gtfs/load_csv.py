@@ -2,14 +2,15 @@
 # SPDX-License-Identifier: MIT
 
 import csv
-import json
 from collections.abc import Iterator, Sequence
+from io import TextIOWrapper
 from itertools import groupby
 from operator import itemgetter
+from typing import IO
+from zipfile import ZipFile
 
 from impuls import DBConnection, Task, TaskRuntime
 from impuls.model import StopTime, TimePoint, Trip
-from impuls.tools.types import StrPath
 
 CSVRow = dict[str, str]
 TrainKey = tuple[str, str]
@@ -36,8 +37,12 @@ ROMAN_TO_ARABIC = {
 
 class LoadCSV(Task):
     def execute(self, r: TaskRuntime) -> None:
-        with r.db.transaction():
-            rows = train_rows(r.resources["kpd_rozklad.csv"].stored_at)
+        with (
+            ZipFile(r.resources["kpd_rozklad.zip"].stored_at, "r") as pkg,
+            pkg.open("KPD_Rozklad.csv") as csv_file,
+            r.db.transaction(),
+        ):
+            rows = train_rows(TextIOWrapper(csv_file, encoding="windows-1250", newline=""))
             trips = (parse_train(list(i)) for _, i in rows)
             for trip, stop_times in trips:
                 self.save_trip(r.db, trip)
@@ -72,13 +77,12 @@ class LoadCSV(Task):
         db.create_many(StopTime, stop_times)
 
 
-def train_rows(filename: StrPath) -> Iterator[tuple[TrainKey, Iterator[CSVRow]]]:
+def train_rows(f: IO[str]) -> Iterator[tuple[TrainKey, Iterator[CSVRow]]]:
     # NOTE: This assumes that the input file is sorted on (DataOdjazdu, NrPociagu, Lp).
     #       For the past 5 years that was the case.
-    with open(filename, "r", encoding="windows-1250", newline="") as f:
-        all_rows = csv.DictReader(f, delimiter=";")
-        pax_rows = filter(lambda r: r["StacjaHandlowa"] == "1", all_rows)
-        yield from groupby(pax_rows, itemgetter("DataOdjazdu", "NrPociagu"))
+    all_rows = csv.DictReader(f, delimiter=";")
+    pax_rows = filter(lambda r: r["StacjaHandlowa"] == "1", all_rows)
+    yield from groupby(pax_rows, itemgetter("DataOdjazdu", "NrPociagu"))
 
 
 def parse_train(rows: list[CSVRow]) -> tuple[Trip, list[StopTime]]:

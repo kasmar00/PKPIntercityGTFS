@@ -6,7 +6,7 @@ from argparse import ArgumentParser, Namespace
 
 from impuls import App, Pipeline, PipelineOptions
 from impuls.model import Agency
-from impuls.resource import HTTPResource, LocalResource, ZippedResource
+from impuls.resource import HTTPResource, LocalResource
 from impuls.tasks import (
     AddEntity,
     ExecuteSQL,
@@ -79,10 +79,7 @@ class PKPIntercityGTFS(App):
                 SaveGTFS(headers=GTFS_HEADERS, target=args.output, ensure_order=True),
             ],
             resources={
-                "kpd_rozklad.csv": ZippedResource(
-                    r=FTPResource("rozklad/KPD_Rozklad.zip"),
-                    file_name_in_zip="KPD_Rozklad.csv",
-                ),
+                "kpd_rozklad.zip": FTPResource("rozklad/KPD_Rozklad.zip"),
                 "pl_rail_map.osm": HTTPResource.get(
                     "https://raw.githubusercontent.com/MKuranowski/PLRailMap/master/plrailmap.osm"
                 ),
