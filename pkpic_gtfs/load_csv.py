@@ -87,11 +87,12 @@ def parse_train(rows: list[CSVRow]) -> tuple[Trip, list[StopTime]]:
     name = rows[0]["NazwaPociagu"]
     number = rows[0]["NrPociaguHandlowy"]
     calendar_id = rows[0]["DataOdjazdu"]
-    trip_id = calendar_id + "_" + rows[0]["NrPociagu"].replace("/", "-")
+    number_operational = rows[0]["NrPociagu"]
+    trip_id = calendar_id + "_" + number_operational.replace("/", "-")
 
     # Fix for missing NrPociaguHandlowy
     if number == "":
-        number, _, _ = rows[0]["NrPociagu"].partition("/")
+        number = number_operational.partition("/")[0]
 
     # Generate a sensible train number to show
     if name and number in name:
@@ -101,7 +102,13 @@ def parse_train(rows: list[CSVRow]) -> tuple[Trip, list[StopTime]]:
     else:
         display_name = number
 
-    trip = Trip(id=trip_id, route_id=category, calendar_id=calendar_id, short_name=display_name)
+    trip = Trip(
+        id=trip_id,
+        route_id=category,
+        calendar_id=calendar_id,
+        short_name=display_name,
+    )
+    trip.set_extra_fields({"plk_train_number": number_operational})
 
     # Generate StopTimes, avoiding time travel
     stop_times = list[StopTime]()
@@ -127,6 +134,10 @@ def parse_train(rows: list[CSVRow]) -> tuple[Trip, list[StopTime]]:
         else:
             platform = normalize_platform(row["PeronWyjazd"] or row["PeronWjazd"])
 
+        # Parse other metadata
+        track = row["TorWyjazd"] or row["TorWjazd"]
+        vehicle_kind = row["Pojazd"]
+
         stop_time = StopTime(
             trip_id=trip_id,
             stop_id=stop_id,
@@ -134,7 +145,13 @@ def parse_train(rows: list[CSVRow]) -> tuple[Trip, list[StopTime]]:
             arrival_time=TimePoint(seconds=arr),
             departure_time=TimePoint(seconds=dep),
             platform=platform,
-            extra_fields_json=json.dumps({"fare_dist_m": str(dist)}),
+        )
+        stop_time.set_extra_fields(
+            {
+                "track": track,
+                "fare_dist_m": str(dist),
+                "vehicle_kind": vehicle_kind,
+            },
         )
 
         stop_times.append(stop_time)
