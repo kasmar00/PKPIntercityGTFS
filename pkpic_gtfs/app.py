@@ -53,6 +53,24 @@ class PKPIntercityGTFS(App):
                     statement="DELETE FROM stops WHERE stop_id = '201084'",
                     task_name="RemoveBohuminVrbice",
                 ),
+                ExecuteSQL(
+                    statement="DELETE FROM stops WHERE stop_id = '179215'",
+                    task_name="RemoveHorka",
+                ),
+                ExecuteSQL(
+                    statement=(
+                        "UPDATE trips SET short_name = "
+                        r"re_sub('^(\d+)\s+Chełmoński\s+\d+\s+Saxonia$', '\1 Chełmoński', short_name)"
+                    ),
+                    task_name="FixChelmonskiShortName",
+                ),
+                ExecuteSQL(
+                    statement=(
+                        "UPDATE trips SET short_name = "
+                        r"re_sub('^Uznam\s+(\d+)\s+Ursa$', '\1 Uznam', short_name)"
+                    ),
+                    task_name="FixUznamShortName",
+                ),
                 LoadStationData(),
                 LoadPlatformData(),
                 SimplifyRoutes(),

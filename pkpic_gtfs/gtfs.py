@@ -38,7 +38,7 @@ GTFS_HEADERS = {
         "platform",
         "track",
         "fare_dist_m",
-        "locomotive_type",
+        "vehicle_kind",
     ),
     "transfers.txt": (
         "from_stop_id",
