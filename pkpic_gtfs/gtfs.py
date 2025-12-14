@@ -35,6 +35,7 @@ GTFS_HEADERS = {
         "arrival_time",
         "departure_time",
         "platform",
+        "track",
         "fare_dist_m",
     ),
     "transfers.txt": (
