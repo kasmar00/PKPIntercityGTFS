@@ -88,6 +88,7 @@ def parse_train(rows: list[CSVRow]) -> tuple[Trip, list[StopTime]]:
     number = rows[0]["NrPociaguHandlowy"]
     calendar_id = rows[0]["DataOdjazdu"]
     trip_id = calendar_id + "_" + rows[0]["NrPociagu"].replace("/", "-")
+    plk_train_number = rows[0]["NrPociagu"]
 
     # Fix for missing NrPociaguHandlowy
     if number == "":
@@ -101,7 +102,13 @@ def parse_train(rows: list[CSVRow]) -> tuple[Trip, list[StopTime]]:
     else:
         display_name = number
 
-    trip = Trip(id=trip_id, route_id=category, calendar_id=calendar_id, short_name=display_name)
+    trip = Trip(
+        id=trip_id,
+        route_id=category,
+        calendar_id=calendar_id,
+        short_name=display_name,
+        extra_fields_json=json.dumps({"plk_train_number": plk_train_number}),
+    )
 
     # Generate StopTimes, avoiding time travel
     stop_times = list[StopTime]()
@@ -128,6 +135,7 @@ def parse_train(rows: list[CSVRow]) -> tuple[Trip, list[StopTime]]:
             platform = normalize_platform(row["PeronWyjazd"] or row["PeronWjazd"])
 
         track = row["TorWjazd"] or row["TorWyjazd"]
+        locomotive_type = row["Pojazd"]
 
         stop_time = StopTime(
             trip_id=trip_id,
@@ -136,7 +144,13 @@ def parse_train(rows: list[CSVRow]) -> tuple[Trip, list[StopTime]]:
             arrival_time=TimePoint(seconds=arr),
             departure_time=TimePoint(seconds=dep),
             platform=platform,
-            extra_fields_json=json.dumps({"fare_dist_m": str(dist), "track": track}),
+            extra_fields_json=json.dumps(
+                {
+                    "fare_dist_m": str(dist),
+                    "track": track,
+                    "locomotive_type": locomotive_type,
+                }
+            ),
         )
 
         stop_times.append(stop_time)
