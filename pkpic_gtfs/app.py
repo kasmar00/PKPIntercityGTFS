@@ -64,6 +64,13 @@ class PKPIntercityGTFS(App):
                 ExecuteSQL(
                     statement=(
                         "UPDATE trips SET short_name = "
+                        r"re_sub('^(\d+)\s+Wyczółkowski\s+\d+\s+Via Regia$', '\1 Wyczółkowski', short_name)"
+                    ),
+                    task_name="FixWyczolkowskiShortName",
+                ),
+                ExecuteSQL(
+                    statement=(
+                        "UPDATE trips SET short_name = "
                         r"re_sub('^Uznam\s+(\d+)\s+Ursa$', '\1 Uznam', short_name)"
                     ),
                     task_name="FixUznamShortName",
