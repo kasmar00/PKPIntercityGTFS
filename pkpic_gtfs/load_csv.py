@@ -100,7 +100,7 @@ def parse_train(rows: list[CSVRow]) -> tuple[Trip, list[StopTime]]:
 
     # Generate a sensible train number to show
     if name and number in name:
-        display_name = name.title().replace("Zka", "ZKA")
+        display_name = name.title()
     elif name:
         display_name = f"{number} {name.title()}"
     else:

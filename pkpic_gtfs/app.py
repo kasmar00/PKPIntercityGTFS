@@ -51,6 +51,10 @@ class PKPIntercityGTFS(App):
                     task_name="RemoveHorka",
                 ),
                 ExecuteSQL(
+                    statement=r"UPDATE trips SET short_name = re_sub('(?i)\bzka\b', 'ZKA', short_name)",
+                    task_name="EnsureZkaUpperCase",
+                ),
+                ExecuteSQL(
                     statement=(
                         "UPDATE trips SET short_name = "
                         r"re_sub('^(\d+)\s+Chełmoński\s+\d+\s+Saxonia$', '\1 Chełmoński', short_name)"
