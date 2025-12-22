@@ -36,6 +36,7 @@ GTFS_HEADERS = {
         "trip_headsign",
         "trip_short_name",
         "plk_train_number",
+        "shape_id",
     ),
     "stop_times.txt": (
         "trip_id",
@@ -79,4 +80,10 @@ GTFS_HEADERS = {
         "is_operator",
         "attribution_url",
     ),
+    "shapes.txt":(
+        "shape_id",
+        "shape_pt_lat",
+        "shape_pt_lon",
+        "shape_pt_sequence",
+    )
 }
