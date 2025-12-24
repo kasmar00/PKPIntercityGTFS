@@ -6,6 +6,7 @@ import json
 class LoadPlatformData(impuls.Task):
     def __init__(self) -> None:
         super().__init__()
+        self.parents_created: Dict[str, impuls.model.Stop] = {}
 
     @staticmethod
     def load_platforms(
@@ -20,13 +21,43 @@ class LoadPlatformData(impuls.Task):
             """
         SELECT DISTINCT name, stop_id, platform, json_extract(stop_times.extra_fields_json, '$.track') AS track
         FROM stop_times join stops USING (stop_id)
-        WHERE track IS NOT NULL and track is not '' AND platform IS NOT NULL AND platform is not '' AND platform is not 'BUS'
         """
         ).all()
-        print(f"Found {len(platforms_in_db)} platforms in DB")
-        print(platforms_in_db[:10])
+        self.logger.info(f"Found {len(platforms_in_db)} platforms in DB")
         platforms = self.load_platforms(r.resources["platforms.json"].stored_at)
         for name, stop_id, platform_number, track in platforms_in_db:
+            if platform_number == "BUS":
+                stop_with_platform_id = f"{stop_id}_BUS"
+                parent_stop = self._ensure_parent_station(r, str(stop_id))
+                try:
+                    r.db.create(
+                        impuls.model.Stop(
+                            id=stop_with_platform_id,
+                            name=str(name),
+                            parent_station=parent_stop.id,
+                            location_type=impuls.model.Stop.LocationType.STOP,
+                            platform_code="BUS",
+                            lat=parent_stop.lat,
+                            lon=parent_stop.lon,
+                        )
+                    )
+                    r.db.raw_execute(
+                        """
+                        UPDATE stop_times
+                        SET stop_id = ?
+                        WHERE stop_id = ? AND platform = ?
+                        """,
+                        (stop_with_platform_id, stop_id, platform_number),
+                    )
+                except Exception as e:
+                    self.logger.warning(
+                        f"Error creating Bus stop {stop_with_platform_id}: {e}, skipping"
+                    )
+                continue
+
+            if not platform_number or not track:
+                continue
+
             stop_with_platform_id = f"{stop_id}_{platform_number}_{track}"
             platforms_for_station = platforms.get(str(name), [])
             if len(platforms_for_station) == 0:
@@ -59,20 +90,21 @@ class LoadPlatformData(impuls.Task):
                 )
                 continue
 
+            parent_stop = self._ensure_parent_station(r, str(stop_id))
+
             location = platform.get("location")
             if not location:
                 self.logger.error(
                     f"Platform {name} track {track} has no location, falling back to parent stop"
                 )
-                parent_stop = r.db.retrieve_must(impuls.model.Stop, stop_id)
                 location = [parent_stop.lon, parent_stop.lat]
 
             r.db.create(
                 impuls.model.Stop(
                     id=stop_with_platform_id,
                     name=str(name),
-                    parent_station=str(stop_id),
-                    location_type=impuls.model.Stop.LocationType.STOP,  # TODO: set 1 for parent station?
+                    parent_station=parent_stop.id,
+                    location_type=impuls.model.Stop.LocationType.STOP,
                     platform_code=f"{platform_number}/{track}",
                     lon=location[0],
                     lat=location[1],
@@ -86,3 +118,24 @@ class LoadPlatformData(impuls.Task):
                 """,
                 (stop_with_platform_id, stop_id, platform_number, track),
             )
+
+    def _ensure_parent_station(
+        self, r: impuls.TaskRuntime, stop_id: str
+    ) -> impuls.model.Stop:
+        parent_id = f"{stop_id}_parent"
+        if parent_id not in self.parents_created.keys():
+            no_platform_stop = r.db.retrieve_must(impuls.model.Stop, stop_id)
+            parent_stop = impuls.model.Stop(
+                id=parent_id,
+                name=no_platform_stop.name,
+                location_type=impuls.model.Stop.LocationType.STATION,
+                lon=no_platform_stop.lon,
+                lat=no_platform_stop.lat,
+            )
+            r.db.create(parent_stop)
+
+            self.parents_created[parent_id] = parent_stop
+            no_platform_stop.parent_station = parent_id
+            r.db.update(no_platform_stop)
+
+        return self.parents_created[parent_id]
