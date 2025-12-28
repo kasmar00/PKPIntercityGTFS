@@ -3,6 +3,9 @@ import impuls
 import requests
 import polyline
 import hashlib
+import os
+
+osrm_addr = os.environ.get("OSRM_ADDR")
 
 
 class AddShapes(impuls.Task):
@@ -38,7 +41,11 @@ class AddShapes(impuls.Task):
 
                 if shape_hash not in shape_hash_to_id.keys() and shape_hash not in wrong:
                     try:
-                        shape = _get_shape_from_osrm(point_list)
+                        shape = (
+                            _get_shape_from_osrm(point_list)
+                            if osrm_addr
+                            else _get_shape_from_openrailwayrouting(point_list)
+                        )
 
                         max_id += 1
                         shape_id = str(max_id)
@@ -91,16 +98,17 @@ def _get_shape_from_openrailwayrouting(point_list: List[str]) -> List[Tuple[floa
 
 
 def _get_shape_from_osrm(point_list: List[str]) -> List[Tuple[float, float]]:
-    base_url = "http://localhost:5000/route/v1/train"
+    base_url = f"{osrm_addr}/route/v1/train"
     coordinates = ";".join([reverse(x) for x in point_list])
 
     params = {"overview": "full", "geometries": "polyline"}
     response = requests.get(f"{base_url}/{coordinates}", params=params)
     response.raise_for_status()
 
-    data = response.json()["routes"][0]["geometry"],
+    data = response.json()["routes"][0]["geometry"]
     return polyline.decode(data)
 
-def reverse(x:str):
+
+def reverse(x: str):
     a, b = x.split(",")
     return f"{b},{a}"
