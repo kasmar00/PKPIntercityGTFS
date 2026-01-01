@@ -23,7 +23,7 @@ from .load_csv import LoadCSV
 from .load_stations import LoadStationData
 from .simplify_routes import SimplifyRoutes
 from .load_platforms import LoadPlatformData
-from .shapes import AddShapes
+from .shapes import AddShapes, RemoveNonPaxStops
 
 
 class PKPIntercityGTFS(App):
@@ -78,6 +78,7 @@ class PKPIntercityGTFS(App):
                 GenerateTripHeadsign(),
                 SplitTripLegs(replacement_bus_short_name_pattern=re.compile(r"\bZKA\b", re.I)),
                 AddShapes(),
+                RemoveNonPaxStops(),
                 ModifyRoutesFromCSV("routes.csv", must_curate_all=True, silent=True),
                 CreateFeedInfo(),
                 SaveGTFS(headers=GTFS_HEADERS, target=args.output, ensure_order=True),

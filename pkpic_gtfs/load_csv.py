@@ -77,7 +77,7 @@ def train_rows(filename: StrPath) -> Iterator[tuple[TrainKey, Iterator[CSVRow]]]
     #       For the past 5 years that was the case.
     with open(filename, "r", encoding="windows-1250", newline="") as f:
         all_rows = csv.DictReader(f, delimiter=";")
-        pax_rows = filter(lambda r: r["StacjaHandlowa"] == "1", all_rows)
+        pax_rows = filter(lambda r: r["StacjaHandlowa"] == "1" or r["NumerStacji"] in NON_PAX_IMPORTANT_STOPS , all_rows)
         yield from groupby(pax_rows, itemgetter("DataOdjazdu", "NrPociagu"))
 
 
@@ -133,6 +133,10 @@ def parse_train(rows: list[CSVRow]) -> tuple[Trip, list[StopTime]]:
             platform = "BUS"
         else:
             platform = normalize_platform(row["PeronWyjazd"] or row["PeronWjazd"])
+        if row["StacjaHandlowa"] != "1":
+            if stop_id not in NON_PAX_IMPORTANT_STOPS:
+                continue
+            platform = "NO_PAX"
 
         # Parse other metadata
         track = row["TorWyjazd"] or row["TorWjazd"]
@@ -162,8 +166,19 @@ def parse_train(rows: list[CSVRow]) -> tuple[Trip, list[StopTime]]:
         stop_times[0].arrival_time = stop_times[0].departure_time
         stop_times[-1].departure_time = stop_times[-1].arrival_time
 
-    return trip, stop_times
+    return trip, ensure_start_and_end_at_pax_station(stop_times)
 
+def ensure_start_and_end_at_pax_station(stops: list[StopTime]) -> list[StopTime]:
+    start = 0
+    end = len(stops) - 1
+
+    while start <= end and stops[start].platform == "NO_PAX":
+        start += 1
+
+    while end >= start and stops[end].platform == "NO_PAX":
+        end -= 1
+
+    return stops[start:end + 1]
 
 def parse_time(x: str) -> int:
     h, m, s = map(int, x.split(":"))
@@ -180,3 +195,16 @@ def normalize_platform(x: str) -> str:
 
     base = ROMAN_TO_ARABIC.get(base, base)
     return f"{base}{suffix}"
+
+# List of non pax stops that are important for routing
+NON_PAX_IMPORTANT_STOPS = [
+    # Swarzędz - Poznań: Franowo vs Wschodni
+    "28522", # Poznań Starołęka
+    # "29801", # Poznań Wschód - excluded, due to problematic location
+    # CMK vs other routes
+    "64899", # Włoszczowa Północ
+    "48959", # Opoczno Południe
+    # Szczecin Dąbie - Szczecin Główny: Port Centralny vs Dziewoklicz
+    "299", # Dziewoklicz
+    "109", # Szczecin Port Centralny
+]

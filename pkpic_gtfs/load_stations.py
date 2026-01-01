@@ -22,6 +22,9 @@ class Station:
     def __bool__(self) -> bool:
         return bool(self.id and self.name and self.lat and self.lon)
 
+EXTRA_STATIONS = [
+    Station("299", "Dziewoklicz", 53.3815871, 14.5397781),
+]
 
 class PLRailMapLoader(XmlSaxContentHandler):
     def __init__(self) -> None:
@@ -62,6 +65,7 @@ class LoadStationData(impuls.Task):
             for i in r.db.raw_execute("SELECT stop_id, name FROM stops")
         }
         stations = PLRailMapLoader.load_from_file(r.resources["pl_rail_map.osm"].stored_at)
+        stations.append(*EXTRA_STATIONS)
         with r.db.transaction():
             for station in stations:
                 self._apply(station, r.db)

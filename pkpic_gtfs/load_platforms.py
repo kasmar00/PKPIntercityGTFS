@@ -20,7 +20,8 @@ class LoadPlatformData(impuls.Task):
         platforms_in_db = r.db.raw_execute(
             """
         SELECT DISTINCT name, stop_id, platform, json_extract(stop_times.extra_fields_json, '$.track') AS track
-        FROM stop_times join stops USING (stop_id)
+        FROM stop_times JOIN stops USING (stop_id)
+        WHERE platform != 'NO_PAX'
         """
         ).all()
         self.logger.info(f"Found {len(platforms_in_db)} platforms in DB")

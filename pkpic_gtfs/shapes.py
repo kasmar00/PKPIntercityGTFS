@@ -73,6 +73,43 @@ class AddShapes(impuls.Task):
                     trip.shape_id = shape_id
                     r.db.update(trip)
 
+class RemoveNonPaxStops(impuls.Task):
+    def execute(self, r: impuls.TaskRuntime):
+        with r.db.transaction():
+            r.db.raw_execute(
+                """
+                DELETE FROM stop_times
+                WHERE platform = 'NO_PAX'
+                """
+            )
+
+            #renumber stop_sequence
+            r.db.raw_execute(
+                """
+                UPDATE stop_times
+                SET stop_sequence = stop_sequence + 10000; 
+                """
+            )
+            r.db.raw_execute(
+                """
+                WITH reordered AS (
+                    SELECT
+                        rowid AS rid,
+                        ROW_NUMBER() OVER (
+                            PARTITION BY trip_id
+                            ORDER BY stop_sequence
+                        ) AS new_stop_sequence
+                    FROM stop_times
+                )
+                UPDATE stop_times
+                SET stop_sequence = (
+                    SELECT new_stop_sequence
+                    FROM reordered
+                    WHERE reordered.rid = stop_times.rowid
+                );
+                """
+            )
+        
 
 def _hash_stop_points(points: List[str]) -> str:
     shape = ";".join(points)
