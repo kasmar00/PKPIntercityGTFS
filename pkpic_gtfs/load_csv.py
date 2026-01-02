@@ -207,4 +207,7 @@ NON_PAX_IMPORTANT_STOPS = [
     # Szczecin Dąbie - Szczecin Główny: Port Centralny vs Dziewoklicz
     "299", # Dziewoklicz
     "109", # Szczecin Port Centralny
+    # Warszawa Wschodnia - Otwock and Wołomin
+    "265314", # Warszawa Wschodnia Towarowa R49
+    "265315", # Warszawa Wschodnia Towarowa R51
 ]
