@@ -210,4 +210,6 @@ NON_PAX_IMPORTANT_STOPS = [
     # Warszawa Wschodnia - Otwock and Wołomin
     "265314", # Warszawa Wschodnia Towarowa R49
     "265315", # Warszawa Wschodnia Towarowa R51
+    # Kraków: "Small Bypass" (to/via Płaszów, not via Główny)
+    "80200", #Kraków Olsza
 ]
