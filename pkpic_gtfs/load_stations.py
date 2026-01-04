@@ -26,6 +26,8 @@ EXTRA_STATIONS = [
     Station("299", "Dziewoklicz", 53.3815871, 14.5397781),
     Station("265314", "WARSZAWA WSCHODNIA TOWAROWA R49", 52.2596276, 21.1023789),
     Station("265315", "WARSZAWA WSCHODNIA TOWAROWA R51", 52.2576866, 21.1104199),
+    Station("64865", "Góra Włodowska", 50.5844057, 19.4679810),
+    Station("64923", "Knapówka", 50.8009138, 19.9048019),
 ]
 
 class PLRailMapLoader(XmlSaxContentHandler):

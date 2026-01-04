@@ -30,7 +30,7 @@ class CreateFeedInfo(Task):
                 [
                     impuls.model.Attribution(
                         id=1,
-                        organization_name="Platform locations © OpenStreetMap contributors under ODbL",
+                        organization_name="Platform locations and trip shapes © OpenStreetMap contributors under ODbL",
                         is_producer=True,
                         url="https://openstreetmap.org/copyright",
                     ),

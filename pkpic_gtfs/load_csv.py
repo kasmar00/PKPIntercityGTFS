@@ -204,6 +204,8 @@ NON_PAX_IMPORTANT_STOPS = [
     # CMK vs other routes
     "64899", # Włoszczowa Północ
     "48959", # Opoczno Południe
+    "64865", # Góra Włodowska
+    "64923", # Knapówka
     # Szczecin Dąbie - Szczecin Główny: Port Centralny vs Dziewoklicz
     "299", # Dziewoklicz
     "109", # Szczecin Port Centralny
