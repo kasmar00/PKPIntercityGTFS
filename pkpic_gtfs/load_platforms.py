@@ -93,6 +93,8 @@ class LoadPlatformData(impuls.Task):
 
             parent_stop = self._ensure_parent_station(r, str(stop_id))
 
+            if platform.get("exact_location") == False:
+                self.logger.warning(f"Platform has no exact location {name} {platform_number}/{track}")
             location = platform.get("location")
             if not location:
                 self.logger.error(

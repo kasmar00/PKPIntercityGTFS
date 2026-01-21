@@ -138,12 +138,12 @@ def _get_shape_from_osrm(point_list: List[str]) -> List[Tuple[float, float]]:
     base_url = f"{osrm_addr}/route/v1/train"
     coordinates = ";".join([reverse(x) for x in point_list])
 
-    params = {"overview": "full", "geometries": "polyline"}
+    params = {"overview": "full", "geometries": "polyline6"}
     response = requests.get(f"{base_url}/{coordinates}", params=params)
     response.raise_for_status()
 
     data = response.json()["routes"][0]["geometry"]
-    return polyline.decode(data)
+    return polyline.decode(data, 6)
 
 
 def reverse(x: str):
