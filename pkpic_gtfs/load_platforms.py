@@ -1,6 +1,7 @@
 from typing import Any, Dict, List
 import impuls
 import json
+import re
 
 
 class LoadPlatformData(impuls.Task):
@@ -60,7 +61,7 @@ class LoadPlatformData(impuls.Task):
                 continue
 
             stop_with_platform_id = f"{stop_id}_{platform_number}_{track}"
-            platforms_for_station = platforms.get(str(name), [])
+            platforms_for_station = platforms.get(slug(str(name)), [])
             if len(platforms_for_station) == 0:
                 self.logger.warning(f"Station not found {name}")
                 continue
@@ -142,3 +143,24 @@ class LoadPlatformData(impuls.Task):
             r.db.update(no_platform_stop)
 
         return self.parents_created[parent_id]
+
+
+TRANSLATION_TABLE = str.maketrans(
+    {
+        "ą": "a",
+        "ć": "c",
+        "ę": "e",
+        "ł": "l",
+        "ó": "o",
+        "ń": "n",
+        "ó": "o",
+        "ś": "s",
+        "ź": "z",
+        "ż": "z",
+    }
+)
+
+
+def slug(s: str) -> str:
+    text = s.translate(TRANSLATION_TABLE)
+    return re.sub(r"[ -]+", "-", re.sub(r"[^\x00-\x7F]+", "", text)).lower()
