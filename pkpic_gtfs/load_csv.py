@@ -214,4 +214,6 @@ NON_PAX_IMPORTANT_STOPS = [
     "265315", # Warszawa Wschodnia Towarowa R51
     # Kraków: "Small Bypass" (to/via Płaszów, not via Główny)
     "80200", #Kraków Olsza
+    # Łódż: Łódź Widzew to Łódź Kaliska, without direction change
+    "177970", #Łódź Olechów Łoa
 ]
