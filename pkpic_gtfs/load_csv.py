@@ -216,4 +216,7 @@ NON_PAX_IMPORTANT_STOPS = [
     "80200", #Kraków Olsza
     # Łódż: Łódź Widzew to Łódź Kaliska, without direction change
     "177970", #Łódź Olechów Łoa
+    #LK12: Cargo bypass of Warsaw
+    "40345", #Góra Kalwaria
+    "47175", #Tarnów
 ]
