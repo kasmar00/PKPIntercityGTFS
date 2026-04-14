@@ -219,4 +219,12 @@ NON_PAX_IMPORTANT_STOPS = [
     #LK12: Cargo bypass of Warsaw
     "40345", #Góra Kalwaria
     "47175", #Tarnów
+    # Trains from Pilawa to Warsaw via Mińsk Mazowiecki (skipping Otwock)
+    "38729", # Sulejówek Miłosna
+    # Niespieszny Trains
+    "79277", # Dłubnia (Kraków bypass)
+    "79566", # Podgrabie / Podłęże PZS R201 (Kraków bypass)
+    "45245", # Kalisz
+    "46581", # Pabianice
+    "28571", # Koziegłowy (Poznań northern bypass)
 ]

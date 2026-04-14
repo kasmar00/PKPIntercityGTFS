@@ -29,7 +29,10 @@ EXTRA_STATIONS = [
     Station("64865", "Góra Włodowska", 50.5844057, 19.4679810),
     Station("64923", "Knapówka", 50.8009138, 19.9048019),
     Station("177970", "Łódź Olechów Łoa", 51.7249053, 19.5590165), # Basically Łódź Olechów Zachód
-    Station("47175", "Tarnów", 51.968173, 20.826760)
+    Station("47175", "Tarnów", 51.968173, 20.826760),
+    Station("79277", "Dłubnia", 50.1026052, 20.0262666 ),
+    Station("28571", "Koziegłowy", 52.4390890, 17.0099925),
+    Station("79566", "Podłęże PZS R201", 50.0262673, 20.1530219)
 ]
 
 class PLRailMapLoader(XmlSaxContentHandler):
