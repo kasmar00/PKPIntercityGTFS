@@ -32,7 +32,10 @@ EXTRA_STATIONS = [
     Station("47175", "Tarnów", 51.968173, 20.826760),
     Station("79277", "Dłubnia", 50.1026052, 20.0262666 ),
     Station("28571", "Koziegłowy", 52.4390890, 17.0099925),
-    Station("79566", "Podłęże PZS R201", 50.0262673, 20.1530219)
+    Station("79566", "Podłęże PZS R201", 50.0262673, 20.1530219),
+    Station("74153", "Dorota", 50.2828783, 19.2802144),
+    Station("179007", "Długoszyn", 50.2523158, 19.2545574),
+    Station("73064", "Katowice Kostuchna", 50.186826, 19.008118),
 ]
 
 class PLRailMapLoader(XmlSaxContentHandler):

@@ -227,4 +227,9 @@ NON_PAX_IMPORTANT_STOPS = [
     "45245", # Kalisz
     "46581", # Pabianice
     "28571", # Koziegłowy (Poznań northern bypass)
+    # GOP
+    "73502", # Mysłowice
+    "74153", # Dorota
+    "179007", # Długoszyn
+    "73064", # Katowice Kostuchna
 ]
