@@ -25,6 +25,7 @@ class LoadPlatformData(impuls.Task):
         WHERE platform != 'NO_PAX'
         """
         ).all()
+        r.db.begin()
         self.logger.info(f"Found {len(platforms_in_db)} platforms in DB")
         platforms = self.load_platforms(r.resources["platforms.json"].stored_at)
         for name, stop_id, platform_number, track in platforms_in_db:
@@ -122,6 +123,7 @@ class LoadPlatformData(impuls.Task):
                 """,
                 (stop_with_platform_id, stop_id, platform_number, track),
             )
+        r.db.commit()
 
     def _ensure_parent_station(
         self, r: impuls.TaskRuntime, stop_id: str

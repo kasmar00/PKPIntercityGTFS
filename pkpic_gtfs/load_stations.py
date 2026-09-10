@@ -36,6 +36,7 @@ EXTRA_STATIONS = [
     Station("74153", "Dorota", 50.2828783, 19.2802144),
     Station("179007", "Długoszyn", 50.2523158, 19.2545574),
     Station("73064", "Katowice Kostuchna", 50.186826, 19.008118),
+    Station("33712", "Warszawa Ulrychów", 52.2405273, 20.9251482)
 ]
 
 class PLRailMapLoader(XmlSaxContentHandler):
